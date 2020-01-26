@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="74bf14cc-7825-4642-9576-8b6c99f235f7" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="b0cf9112-9e6c-49d0-8acf-0e1a513b29d4" >
+		<http:request-connection host="meeting.zoho.com" />
+	</http:request-config>
+	<flow name="assignment3Flow" doc:id="a4078835-64fb-4d9b-b511-aa234f523034" >
+		<http:listener doc:name="Listener" doc:id="7e986471-5222-4e2b-9ed4-111195f42083" config-ref="HTTP_Listener_config" path="/meeting"/>
+		<http:request method="GET" doc:name="Request" doc:id="94113525-5eb3-49f8-985c-0b1549d98150" config-ref="HTTP_Request_configuration" path="api/private/json/meetings/createMeeting">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"apikey" : "3cad4fc0a2ff14a9c33b3d3b711b26eb",
+	"authtoken": "08b8af1438a7eaa52c6010477cd31b20",
+	"topic": "1234"
+}]]]></http:query-params>
+		</http:request>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="c30bf8e0-98fa-4d8e-aeed-b05a5759ba30" />
+	</flow>
+</mule>

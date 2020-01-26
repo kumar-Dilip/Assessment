@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="74bf14cc-7825-4642-9576-8b6c99f235f7" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="b0cf9112-9e6c-49d0-8acf-0e1a513b29d4" >
+		<http:request-connection host="meeting.zoho.com" protocol="HTTPS"/>
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="149b9fa5-ed3c-4ebe-9aa3-f9ef0333e830" >
+		<http:request-connection host="accounts.zoho.com" protocol="HTTPS"/>
+	</http:request-config>
+	<flow name="assignment3Flow" doc:id="a4078835-64fb-4d9b-b511-aa234f523034" initialState="started">
+		<http:request method="POST" doc:name="Request- Create Meeting" doc:id="94113525-5eb3-49f8-985c-0b1549d98150" config-ref="HTTP_Request_configuration" path="api/private/json/meetings/createMeeting">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"apikey" : "3cad4fc0a2ff14a9c33b3d3b711b26eb",
+	"authtoken": "08b8af1438a7eaa52c6010477cd31b20",
+	"topic": "1234",
+	"participants":"nikhil.kunkulol@apisero.com",
+	"sendMail ": "yes"
+}]]]></http:query-params>
+		</http:request>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="c30bf8e0-98fa-4d8e-aeed-b05a5759ba30" />
+	</flow>
+	<flow name="assignment3Flow1" doc:id="9853c775-d0d1-40be-afd3-5f8cfbf294d2" >
+		<http:listener doc:name="Listener" doc:id="7e986471-5222-4e2b-9ed4-111195f42083" config-ref="HTTP_Listener_config" path="/meeting" />
+		<http:request method="POST" doc:name="Request-Get Auth Token" doc:id="143c802e-ddf1-4885-9b91-7ab59c0b65ff" config-ref="HTTP_Request_configuration1" path="apiauthtoken/nb/create">
+			<http:query-params ><![CDATA[#[{
+	
+SCOPE:"ZohoMeeting/meetingapi" ,
+EMAIL_ID: "dilip.kumar@apisero.com" ,
+PASSWORD: "14@september"
+	
+	
+	
+	
+}]]]></http:query-params>
+		</http:request>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="554306e7-14c0-4927-980d-da73dcc300b7" />
+		<flow-ref doc:name="Flow Reference" doc:id="a8ce9784-21bd-44b2-beb1-e080b180c76b" name="assignment3Flow"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="9db01bd5-9980-48bf-ad8a-50321a36a772" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="bb9e1f29-4925-4f4a-a801-fbc1d2c2611e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+error.description]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>
